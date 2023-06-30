@@ -1,90 +1,94 @@
-import { nameAndWelcomeMessage, onlineCheck } from "./Services/functions.js";
+import { nameAndWelcomeMessage, onlineCheck, triggerLoader, stopLoader } from "./Services/functions.js";
 
-// Load name and welcome message
 document.addEventListener('DOMContentLoaded', e => {
+    triggerLoader();
+    
+    // Delay before render
+    setTimeout(() => {
     nameAndWelcomeMessage();
-
+    stopLoader();
 
     // Chatbot messages - Handlechatbot function
-    let textboxNode = document.getElementById('textbox');
+    let textBoxNode = document.getElementById('textbox');
     const showChat = (type, message) => {
-        let textboxNode = document.getElementById('textbox');
         let chatContainerNode = document.createElement('div');
         chatContainerNode.classList.add('message', type);
         let chatText = document.createElement('p');
         chatText.innerHTML = message;
         chatContainerNode.appendChild(chatText);
 
-        textboxNode.appendChild(chatContainerNode);
-        textboxNode.scrollTop = textboxNode.scrollHeight;
+        textBoxNode.appendChild(chatContainerNode);
+        textBoxNode.scrollTop = textBoxNode.scrollHeight;
     };
 
-    // Loader
-    const triggerLoader = () => {
-        document.querySelector('.load-container').style.display = 'flex';
-    };
-
-    const stopLoader = () => {
-        document.querySelector('.load-container').style.display = 'none';
-    };
-
-    // Focus on the bottom of the chat.
+    // Scrolling inside the textBoxNode
     let scrollPosition = 0;
     const unscroll = () => {
-        textboxNode.scrollTop = scrollPosition;
-    }
+        textBoxNode.scrollTop = scrollPosition;
+    };
+
     const scrollText = () => {
-        let scrolledToBottom = textboxNode.scrollHeight - textboxNode.clientHeight <= textboxNode.scrollTop + 1;
-        textboxNode.scrollTop = textboxNode.scrollHeight;
+        let scrolledToBottom =
+            textBoxNode.scrollHeight - textBoxNode.clientHeight <=
+            textBoxNode.scrollTop + 1;
+        textBoxNode.scrollTop = textBoxNode.scrollHeight;
         if (scrolledToBottom) {
             unscroll();
         }
-    }
+    };
+
     scrollText();
 
-    // API Key implementation
+    // API communication
+    const APIKEY = process.env.API_KEY;
+    const APIURL = 'https://api.openai.com/v1/chat/completions';
 
-    const APIKEY = 'HIDDEN';
-    const APIURL = 'HIDDEN';
+    let conversation = [
+        {
+            role: 'system',
+            content: 'How are you today? Please ask me anything',
+        },
+    ];
 
     const sendBotMessage = async msg => {
-        let data = {
-            "model": "gpt-3.5-turbo",
-            "messages": [
-                {
-                    role: "system",
-                    "content": "How are you today? Please ask me anything"
-                },
-                {
-                    role: "user",
-                    content: msg
-                }
-            ]
+        let message = {
+            role: 'user',
+            content: msg,
+        };
 
+        // Add user message to conversation history
+        conversation.push(message);
+
+        let data = {
+            model: 'gpt-3.5-turbo',
+            messages: conversation,
         };
 
         triggerLoader();
         try {
             let response = await fetch(APIURL, {
-                method: "POST",
+                method: 'POST',
                 headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${APIKEY}`
+                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${APIKEY}`,
                 },
-                body: JSON.stringify(data)
+                body: JSON.stringify(data),
             });
-            console.log(response);
 
             if (!response.ok) {
-                throw new Error ('Error occurred while chat message being rendered');
+                throw new Error('Error occurred while chat message being rendered');
             } else {
-                let data = await response.json();
-                if (data && data.choices && data.choices.length > 0) {
-                    let botResponse = data.choices[0].message.content;
+                let responseData = await response.json();
+                if (responseData && responseData.choices && responseData.choices.length > 0) {
+                    let botResponse = responseData.choices[0].message.content;
                     stopLoader();
                     showChat('received', botResponse);
-                } else {
-                    handleAPIError(data);
+
+                    // Add bot response to conversation history
+                    conversation.push({
+                        role: 'assistant',
+                        content: botResponse,
+                    });
                 }
             }
         } catch (err) {
@@ -93,17 +97,16 @@ document.addEventListener('DOMContentLoaded', e => {
         }
     };
 
-    
-
-    // Send message functionality
+    // Send-button and input field
     let sendButtonNode = document.getElementById('send-button');
     let userInputNode = document.querySelector('.user-input');
 
     sendButtonNode.addEventListener('click', async () => {
         let userMessage = userInputNode.value.trim();
+        userInputNode.value = '';
         const maxInputLength = 3800;
         if (userMessage === '') {
-
+            return;
         } else {
             if (!onlineCheck()) {
                 showChat('error', 'Please check your internet connection!');
@@ -129,4 +132,13 @@ document.addEventListener('DOMContentLoaded', e => {
             };
         };
     });
+
+    // Send by pressing enter functionality
+    userInputNode.addEventListener('keypress', e => {
+        if (e.key === 'Enter') {
+            sendButtonNode.click();
+            userInputNode.value = '';
+        }
+    });
+}, 1500)
 });

@@ -1,5 +1,6 @@
+// Generated at startup 
 const nameAndWelcomeMessage = () => {
-   
+
     // Name generator
     const generateChatBotName = () => {
         const adjectives = ['Virtual', 'Specialist', 'Intelligent', 'Super'];
@@ -32,12 +33,20 @@ const nameAndWelcomeMessage = () => {
     generateWelcomeMessage();
 };
 
-
 // Check if you have internet
 const onlineCheck = () => {
     return navigator.onLine;
- };
+};
+
+// Handle loader
+const triggerLoader = () => {
+    document.querySelector('.load-container').style.display = 'flex';
+};
+
+const stopLoader = () => {
+    document.querySelector('.load-container').style.display = 'none';
+};
 
 
 
-export {nameAndWelcomeMessage, onlineCheck};
+export { nameAndWelcomeMessage, onlineCheck, triggerLoader, stopLoader };
