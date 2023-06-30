@@ -32,4 +32,12 @@ const nameAndWelcomeMessage = () => {
     generateWelcomeMessage();
 };
 
-export {nameAndWelcomeMessage};
+
+// Check if you have internet
+const onlineCheck = () => {
+    return navigator.onLine;
+ };
+
+
+
+export {nameAndWelcomeMessage, onlineCheck};

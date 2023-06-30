@@ -55,6 +55,22 @@ p {
     line-height: 2.1;
     letter-spacing: 1px;
 }
+.sent {
+    background-color: pink;
+    color: darkgreen;
+    text-align: right;
+}
+
+.message.error {
+    background-color: darkblue;
+    color: lightcyan;
+    padding: 10px;
+    border-color: lightcyan;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+}
 
 /****** Loader-area ******/
 
