@@ -115,7 +115,7 @@ document.addEventListener('DOMContentLoaded', async (e) => {
             return;
           } else {
             try {
-              let response = await fetch('http://localhost:2500/api/key');
+              let response = await fetch('https://openai-chatbot-server.onrender.com/api/key');
               if (!response.ok) {
                 throw new Error('Error occurred while fetching the API key');
               }
