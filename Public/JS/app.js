@@ -96,7 +96,6 @@ document.addEventListener('DOMContentLoaded', async (e) => {
       }
     };
           
-
     // Send-button and input field
     let sendButtonNode = document.getElementById('send-button');
     let userInputNode = document.querySelector('.user-input');

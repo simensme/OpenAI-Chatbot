@@ -47,6 +47,4 @@ const stopLoader = () => {
     document.querySelector('.load-container').style.display = 'none';
 };
 
-
-
 export { nameAndWelcomeMessage, onlineCheck, triggerLoader, stopLoader };
